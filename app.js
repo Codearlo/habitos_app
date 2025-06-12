@@ -260,8 +260,8 @@ class HabitTracker {
         calendarGrid.innerHTML = '';
         calendarGrid.style.color = habit.color;
 
-        // Generar cuadrícula de 7x50
-        const totalDays = 50 * 7;
+        // Generar cuadrícula más pequeña de 30x7
+        const totalDays = 30 * 7;
         const today = new Date();
         const dates = [];
 
@@ -341,7 +341,7 @@ class HabitTracker {
         }
 
         habit.history[dateKey] = currentProgress;
-            this.saveHabits();
+        this.saveHabits();
         this.render();
     }
 

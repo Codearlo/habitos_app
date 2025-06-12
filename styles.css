@@ -574,10 +574,10 @@ h1 {
     display: grid;
     grid-template-columns: repeat(50, 1fr);
     grid-template-rows: repeat(7, 1fr);
-    gap: 2px;
+    gap: 1px;
     overflow-x: scroll;
-    padding-bottom: var(--spacing-md);
-    min-height: 180px;
+    padding: var(--spacing-md);
+    height: 70px;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -606,11 +606,10 @@ h1 {
 }
 
 .calendar-day {
-    aspect-ratio: 1;
     background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 2px;
-    min-width: 18px;
-    min-height: 18px;
+    border-radius: 1px;
+    width: 8px;
+    height: 8px;
     border: none;
 }
 
