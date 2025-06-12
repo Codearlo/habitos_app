@@ -684,23 +684,16 @@ h1 {
 }
 
 /* Layout para formulario */
-.form-row {
-    display: flex;
-    gap: var(--spacing-md);
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
 }
 
-.form-row .input-group {
-    flex: 1;
+.form-grid > .input-group {
+    margin-bottom: 0;
 }
 
-.form-row-3 {
-    display: flex;
-    gap: var(--spacing-md);
-}
-
-.form-row-3 .input-group {
-    flex: 1;
-}
 
 /* Selectores personalizados */
 .icon-display, .color-display {
@@ -898,12 +891,8 @@ h1 {
         bottom: 4.5rem;
     }
 
-    .form-row {
-        flex-direction: column;
-    }
-
-    .form-row-3 {
-        flex-direction: column;
+    .form-grid {
+        grid-template-columns: 1fr;
     }
 
     .modal-content {
@@ -928,10 +917,6 @@ h1 {
 
     .day-name {
         font-size: 0.65rem;
-    }
-
-    .form-row-3 {
-        flex-direction: column;
     }
 
     .modal-content {

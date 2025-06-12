@@ -21,8 +21,7 @@
         </header>
 
         <main id="habitsContainer" class="habits-container">
-            <!-- Los hábitos se insertarán aquí dinámicamente -->
-        </main>
+            </main>
 
         <button id="addHabitBtn" class="add-habit-button">
             <span class="material-icons">add</span>
@@ -44,7 +43,6 @@
         </nav>
     </div>
 
-    <!-- Modal para agregar/editar hábito -->
     <div id="habitModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -54,7 +52,7 @@
                 </button>
             </div>
             <form id="habitForm">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="input-group">
                         <label for="habitName">Nombre del hábito</label>
                         <input type="text" id="habitName" name="habitName" required>
@@ -63,8 +61,6 @@
                         <label for="habitGoal">Meta diaria</label>
                         <input type="number" id="habitGoal" name="habitGoal" min="1" value="1" required>
                     </div>
-                </div>
-                <div class="form-row-3">
                     <div class="input-group">
                         <label for="habitDesiredStreak">Racha (días)</label>
                         <input type="number" id="habitDesiredStreak" name="habitDesiredStreak" min="1" value="7" required>
@@ -72,13 +68,11 @@
                     <div class="input-group">
                         <label for="habitIcon">Icono</label>
                         <input type="text" id="habitIcon" name="habitIcon" value="⭐" required>
-                        <!-- El selector de emojis se agregará aquí dinámicamente -->
-                    </div>
+                        </div>
                     <div class="input-group">
                         <label for="habitColor">Color</label>
                         <input type="color" id="habitColor" name="habitColor" value="#4CAF50" required>
-                        <!-- El selector de colores se agregará aquí dinámicamente -->
-                    </div>
+                        </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" id="cancelHabit" class="button">Cancelar</button>
@@ -88,7 +82,6 @@
         </div>
     </div>
 
-    <!-- Modal de confirmación de eliminación -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -107,7 +100,6 @@
         </div>
     </div>
 
-    <!-- Modal de detalle del hábito -->
     <div id="habitDetailModal" class="modal">
         <div class="modal-content detail-modal">
             <div class="habit-detail-header">
