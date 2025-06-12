@@ -235,7 +235,7 @@ h1 {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: conic-gradient(var(--habit-color, #4CAF50) var(--progress-angle, 0deg), rgba(255, 255, 255, 0.3) var(--progress-angle, 0deg));
+    background: conic-gradient(var(--habit-color, #4CAF50) var(--progress-angle, 0deg), rgba(255, 255, 255, 0.15) var(--progress-angle, 0deg));
     opacity: var(--progress-opacity, 0);
     transition: var(--transition-fast);
 }
@@ -417,178 +417,6 @@ h1 {
     font-size: 1rem;
 }
 
-/* Media queries */
-@media (max-width: 600px) {
-    .app-container {
-        padding: var(--spacing-md);
-    }
-
-    .habit-card {
-        padding: var(--spacing-xs) var(--spacing-sm);
-        gap: var(--spacing-sm);
-    }
-
-    .habit-header {
-        min-width: 120px;
-        gap: var(--spacing-sm);
-    }
-
-    .habit-icon-container {
-        width: 32px;
-        height: 32px;
-    }
-
-    .habit-icon {
-        font-size: 1.25rem;
-    }
-
-    .habit-name {
-        font-size: 0.9rem;
-    }
-
-    .habit-week-track {
-        gap: 8px;
-    }
-
-    .day-status {
-        width: 28px;
-        height: 28px;
-    }
-
-    .day-name {
-        font-size: 0.7rem;
-    }
-
-    .bottom-nav {
-        left: var(--spacing-md);
-        right: var(--spacing-md);
-        bottom: var(--spacing-md);
-    }
-
-    .add-habit-button {
-        width: 48px;
-        height: 48px;
-        bottom: 4.5rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .habit-header {
-        min-width: 100px;
-    }
-
-    .habit-week-track {
-        gap: 4px;
-    }
-
-    .day-status {
-        width: 24px;
-        height: 24px;
-    }
-
-    .day-name {
-        font-size: 0.65rem;
-    }
-}
-
-/* Utilidades */
-.hidden {
-    display: none !important;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Formularios */
-.input-group {
-    margin-bottom: var(--spacing-lg);
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.input-group input {
-    width: 100%;
-    padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    background-color: #121212;
-    color: var(--text-color);
-    transition: var(--transition-fast);
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.input-group input[type="color"] {
-    height: 40px;
-    padding: 4px;
-}
-
-/* Botones */
-.button {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border: none;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-    font-weight: 500;
-    background-color: var(--hover-color);
-    color: var(--text-color);
-    transition: var(--transition-fast);
-}
-
-.button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.button.primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.button.primary:hover {
-    background-color: #43a047;
-}
-
-.button.danger {
-    background-color: #cf6679;
-    color: white;
-}
-
-.button.danger:hover {
-    background-color: #ba4f61;
-}
-
-.close-button {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: var(--spacing-sm);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-fast);
-}
-
-.close-button:hover {
-    background-color: var(--hover-color);
-    color: var(--text-color);
-}
-
 /* Modal de detalle */
 .detail-modal {
     max-width: 100%;
@@ -640,15 +468,6 @@ h1 {
     color: white;
 }
 
-/* Contenedor principal del calendario */
-.calendar-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: var(--spacing-lg);
-}
-
 /* Calendario */
 .habit-calendar-grid {
     display: grid;
@@ -666,29 +485,6 @@ h1 {
 
 .habit-calendar-grid::-webkit-scrollbar {
     display: none;
-}
-
-.habit-calendar-grid::-webkit-scrollbar {
-    display: none;
-}
-
-/* Contenedor del scroll */
-.scroll-container {
-    width: 100%;
-    height: 12px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-    position: relative;
-    margin-top: var(--spacing-sm);
-}
-
-.scroll-thumb {
-    position: absolute;
-    height: 100%;
-    width: 20%;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    left: 0;
 }
 
 .calendar-day {
@@ -840,7 +636,250 @@ h1 {
     font-size: 16px;
 }
 
-/* Eliminar sección de acciones separada ya que está integrada en controles */
+/* Formularios */
+.input-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: #121212;
+    color: var(--text-color);
+    transition: var(--transition-fast);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Selectores personalizados */
+.icon-display, .color-display {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: #121212;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    min-height: 48px;
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+.icon-display::after, .color-display::after {
+    content: '▼';
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.icon-display:hover, .color-display:hover {
+    border-color: var(--primary-color);
+}
+
+.emoji-selector, .color-selector {
+    display: none; /* Oculto por defecto */
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: #1a1a1a;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    z-index: 100;
+}
+
+.emoji-selector.show, .color-selector.show {
+    display: grid !important; /* Forzar mostrar cuando tiene la clase show */
+}
+
+.emoji-option {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: var(--transition-fast);
+}
+
+.emoji-option:hover {
+    background-color: var(--hover-color);
+    transform: scale(1.05);
+}
+
+.emoji-option.selected {
+    background-color: var(--primary-color);
+}
+
+.color-option {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px white;
+}
+
+/* Botones */
+.button {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    background-color: var(--hover-color);
+    color: var(--text-color);
+    transition: var(--transition-fast);
+}
+
+.button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.button.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.button.primary:hover {
+    background-color: #43a047;
+}
+
+.button.danger {
+    background-color: #cf6679;
+    color: white;
+}
+
+.button.danger:hover {
+    background-color: #ba4f61;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.close-button:hover {
+    background-color: var(--hover-color);
+    color: var(--text-color);
+}
+
+/* Media queries */
+@media (max-width: 600px) {
+    .app-container {
+        padding: var(--spacing-md);
+    }
+
+    .habit-card {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+
+    .habit-header {
+        min-width: 120px;
+        gap: var(--spacing-sm);
+    }
+
+    .habit-icon-container {
+        width: 32px;
+        height: 32px;
+    }
+
+    .habit-icon {
+        font-size: 1.25rem;
+    }
+
+    .habit-name {
+        font-size: 0.9rem;
+    }
+
+    .habit-week-track {
+        gap: 8px;
+    }
+
+    .day-status {
+        width: 28px;
+        height: 28px;
+    }
+
+    .day-name {
+        font-size: 0.7rem;
+    }
+
+    .bottom-nav {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        bottom: var(--spacing-md);
+    }
+
+    .add-habit-button {
+        width: 48px;
+        height: 48px;
+        bottom: 4.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .habit-header {
+        min-width: 100px;
+    }
+
+    .habit-week-track {
+        gap: 4px;
+    }
+
+    .day-status {
+        width: 24px;
+        height: 24px;
+    }
+
+    .day-name {
+        font-size: 0.65rem;
+    }
+}
 
 @media (min-width: 768px) {
     .detail-modal {
@@ -873,5 +912,19 @@ h1 {
     .calendar-day {
         width: 12px;
         height: 12px;
+    }
+}
+
+/* Utilidades */
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
