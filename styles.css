@@ -293,7 +293,7 @@ h1 {
 .habit-grid-card {
     background-color: var(--surface-color);
     border-radius: var(--border-radius-md);
-    padding: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
@@ -302,8 +302,9 @@ h1 {
 
 .habit-grid-card .habit-detail-header {
     padding: 0;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .habit-grid-card .habit-detail-name {
@@ -313,11 +314,10 @@ h1 {
 }
 
 .habit-grid-card .habit-calendar-grid {
-    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    grid-auto-rows: 8px;
     gap: 2px;
-    grid-template-columns: repeat(auto-fit, minmax(8px, 1fr));
-    grid-auto-rows: minmax(8px, 1fr);
-    aspect-ratio: 4 / 1;
 }
 
 /* Botón de añadir hábito */
@@ -1037,4 +1037,3 @@ h1 {
         opacity: 1;
     }
 }
-
