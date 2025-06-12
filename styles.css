@@ -386,6 +386,13 @@ h1 {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
+.form-modal-content {
+    background-color: transparent;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+}
+
 .modal-header {
     padding: var(--spacing-lg);
     display: flex;
@@ -394,6 +401,10 @@ h1 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background-color: transparent;
     border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.form-modal-content .modal-header {
+    border-bottom: none;
 }
 
 .modal-header h2 {
@@ -416,6 +427,11 @@ h1 {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background-color: transparent;
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+.form-modal-content .modal-actions {
+    border-top: none;
+    justify-content: center;
 }
 
 /* Formulario dentro del modal */
@@ -657,6 +673,7 @@ h1 {
 /* Formularios */
 .input-group {
     margin-bottom: var(--spacing-lg);
+    position: relative;
 }
 
 .input-group label {
@@ -729,12 +746,15 @@ h1 {
     gap: 8px;
     margin-top: var(--spacing-sm);
     padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    background-color: #1a1a1a;
-    box-shadow: var(--shadow-lg);
-    position: relative;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 100;
+    background-color: #121212;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
 }
 
 .emoji-selector.show, .color-selector.show {
