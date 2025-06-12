@@ -222,6 +222,28 @@ h1 {
     align-items: center;
     justify-content: center;
     transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.day-status::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: conic-gradient(var(--habit-color, #4CAF50) var(--progress-angle, 0deg), rgba(255, 255, 255, 0.3) var(--progress-angle, 0deg));
+    opacity: var(--progress-opacity, 0);
+    transition: var(--transition-fast);
+}
+
+.day-status span {
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
 }
 
 .day-status:hover:not(.future) {
@@ -229,17 +251,34 @@ h1 {
 }
 
 .day-status.completed {
-    background-color: var(--primary-color);
+    background-color: var(--habit-color, #4CAF50);
     color: white;
 }
 
+.day-status.completed::before {
+    opacity: 0;
+}
+
+.day-status.partial::before {
+    opacity: 1;
+    background: conic-gradient(var(--habit-color, #4CAF50) var(--progress-angle, 0deg), rgba(255, 255, 255, 0.15) var(--progress-angle, 0deg));
+}
+
 .day-status.future {
-    opacity: 0.5;
+    opacity: 1;
     cursor: not-allowed;
+    background-color: rgba(255, 255, 255, 0.03);
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 1px,
+        rgba(255, 255, 255, 0.05) 1px,
+        rgba(255, 255, 255, 0.05) 2px
+    );
 }
 
 .day-status.today {
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--habit-color, #4CAF50);
 }
 
 .day-track.today .day-name {
@@ -674,14 +713,21 @@ h1 {
 
 .calendar-day.today {
     border: 1px solid #4CAF50;
-    background-color: #4CAF50;
+    background-color: rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
 }
 
 .calendar-day.future {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.03);
     opacity: 1;
     cursor: not-allowed;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 1px,
+        rgba(255, 255, 255, 0.05) 1px,
+        rgba(255, 255, 255, 0.05) 2px
+    );
 }
 
 .calendar-day.empty {

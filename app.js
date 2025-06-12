@@ -110,6 +110,7 @@ class HabitTracker {
                     id: String(habit.id || Date.now()),
                     name: habit.name || 'Hábito sin nombre',
                     goal: parseInt(habit.goal, 10) || 1,
+                    desiredStreak: parseInt(habit.desiredStreak, 10) || 7,
                     icon: habit.icon || '⭐',
                     color: habit.color || '#4CAF50',
                     history: habit.history || {},
@@ -151,14 +152,33 @@ class HabitTracker {
         });
 
         document.querySelectorAll('.close-button').forEach(button => {
-            button.addEventListener('click', () => {
-                this.hideHabitModal();
-                this.hideDeleteModal();
-                this.hideDetailModal();
+            button.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal.id === 'habitModal') {
+                    const habitId = this.habitToEdit ? this.habitToEdit.id : null;
+                    this.hideHabitModal();
+                    if (habitId) {
+                        setTimeout(() => {
+                            this.showDetailModal(habitId);
+                        }, 100);
+                    }
+                } else {
+                    this.hideHabitModal();
+                    this.hideDeleteModal();
+                    this.hideDetailModal();
+                }
             });
         });
 
-        document.getElementById('cancelHabit').addEventListener('click', () => this.hideHabitModal());
+        document.getElementById('cancelHabit').addEventListener('click', () => {
+            const habitId = this.habitToEdit ? this.habitToEdit.id : null;
+            this.hideHabitModal();
+            if (habitId) {
+                setTimeout(() => {
+                    this.showDetailModal(habitId);
+                }, 100);
+            }
+        });
         document.getElementById('cancelDelete').addEventListener('click', () => this.hideDeleteModal());
         document.getElementById('confirmDelete').addEventListener('click', () => this.deleteHabit());
 
@@ -241,17 +261,179 @@ class HabitTracker {
 
     showHabitModal(habitId = null) {
         this.habitToEdit = habitId ? this.habits.find(h => h.id === habitId) : null;
+        
+        const modal = this.habitModal;
+        const form = this.habitForm;
+        
+        // Crear los selectores si no existen
+        this.createEmojiSelector();
+        this.createColorSelector();
+        
         if (this.habitToEdit) {
-            this.habitForm.elements.habitName.value = this.habitToEdit.name;
-            this.habitForm.elements.habitGoal.value = this.habitToEdit.goal;
-            this.habitForm.elements.habitIcon.value = this.habitToEdit.icon;
-            this.habitForm.elements.habitColor.value = this.habitToEdit.color;
-            this.habitModal.querySelector('h2').textContent = 'Editar Hábito';
+            form.elements.habitName.value = this.habitToEdit.name;
+            form.elements.habitGoal.value = this.habitToEdit.goal;
+            form.elements.habitDesiredStreak.value = this.habitToEdit.desiredStreak || 7;
+            
+            // Actualizar displays
+            const iconDisplay = document.querySelector('.icon-display');
+            const colorDisplay = document.querySelector('.color-display');
+            if (iconDisplay) iconDisplay.textContent = this.habitToEdit.icon;
+            if (colorDisplay) colorDisplay.style.backgroundColor = this.habitToEdit.color;
+            
+            this.setSelectedEmoji(this.habitToEdit.icon);
+            this.setSelectedColor(this.habitToEdit.color);
+            modal.querySelector('h2').textContent = 'Editar Hábito';
         } else {
-            this.habitForm.reset();
-            this.habitModal.querySelector('h2').textContent = 'Nuevo Hábito';
+            form.reset();
+            
+            // Actualizar displays con valores por defecto
+            const iconDisplay = document.querySelector('.icon-display');
+            const colorDisplay = document.querySelector('.color-display');
+            if (iconDisplay) iconDisplay.textContent = '⭐';
+            if (colorDisplay) colorDisplay.style.backgroundColor = '#4CAF50';
+            
+            this.setSelectedEmoji('⭐');
+            this.setSelectedColor('#4CAF50');
+            modal.querySelector('h2').textContent = 'Nuevo Hábito';
         }
-        this.habitModal.classList.add('active');
+        modal.classList.add('active');
+    }
+
+    createEmojiSelector() {
+        const emojiInput = document.getElementById('habitIcon');
+        const inputGroup = emojiInput.parentNode;
+        
+        // Verificar si ya existe el selector
+        if (inputGroup.querySelector('.icon-display')) return;
+        
+        const emojis = ['⭐', '🏃', '💪', '📚', '🧘', '💧', '🥗', '😴', '🎯', '🎨', '🎵', '💻', '🏠', '🌱', '⚽', '🏊', '🚴', '🎮', '📱', '☕', '🧠', '❤️', '🔥', '✨'];
+        
+        // Crear display
+        const display = document.createElement('div');
+        display.className = 'icon-display';
+        display.textContent = emojiInput.value || '⭐';
+        display.onclick = () => this.toggleEmojiSelector();
+        
+        // Crear selector
+        const selector = document.createElement('div');
+        selector.className = 'emoji-selector';
+        selector.id = 'emojiSelector';
+        
+        emojis.forEach(emoji => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'emoji-option';
+            option.textContent = emoji;
+            option.onclick = () => this.selectEmoji(emoji);
+            selector.appendChild(option);
+        });
+        
+        // Ocultar input original y agregar nuevos elementos
+        emojiInput.style.display = 'none';
+        inputGroup.appendChild(display);
+        inputGroup.appendChild(selector);
+    }
+
+    createColorSelector() {
+        const colorInput = document.getElementById('habitColor');
+        const inputGroup = colorInput.parentNode;
+        
+        // Verificar si ya existe el selector
+        if (inputGroup.querySelector('.color-display')) return;
+        
+        const colors = [
+            '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', '#607D8B',
+            '#8BC34A', '#03A9F4', '#FFC107', '#E91E63', '#673AB7', '#795548',
+            '#CDDC39', '#00BCD4', '#FFEB3B', '#3F51B5', '#FF5722', '#9E9E9E',
+            '#689F38', '#0288D1', '#F57C00', '#C2185B', '#512DA8', '#455A64'
+        ];
+        
+        // Crear display
+        const display = document.createElement('div');
+        display.className = 'color-display';
+        display.style.backgroundColor = colorInput.value || '#4CAF50';
+        display.onclick = () => this.toggleColorSelector();
+        
+        // Crear selector
+        const selector = document.createElement('div');
+        selector.className = 'color-selector';
+        selector.id = 'colorSelector';
+        
+        colors.forEach(color => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'color-option';
+            option.style.backgroundColor = color;
+            option.onclick = () => this.selectColor(color);
+            selector.appendChild(option);
+        });
+        
+        // Ocultar input original y agregar nuevos elementos
+        colorInput.style.display = 'none';
+        inputGroup.appendChild(display);
+        inputGroup.appendChild(selector);
+    }
+
+    toggleEmojiSelector() {
+        const selector = document.getElementById('emojiSelector');
+        const colorSelector = document.getElementById('colorSelector');
+        
+        // Cerrar el selector de colores si está abierto
+        if (colorSelector) {
+            colorSelector.classList.remove('show');
+        }
+        
+        selector.classList.toggle('show');
+    }
+
+    toggleColorSelector() {
+        const selector = document.getElementById('colorSelector');
+        const emojiSelector = document.getElementById('emojiSelector');
+        
+        // Cerrar el selector de emojis si está abierto
+        if (emojiSelector) {
+            emojiSelector.classList.remove('show');
+        }
+        
+        selector.classList.toggle('show');
+    }
+
+    selectEmoji(emoji) {
+        document.getElementById('habitIcon').value = emoji;
+        const display = document.querySelector('.icon-display');
+        if (display) display.textContent = emoji;
+        
+        this.setSelectedEmoji(emoji);
+        
+        // Cerrar el selector
+        const selector = document.getElementById('emojiSelector');
+        if (selector) selector.classList.remove('show');
+    }
+
+    selectColor(color) {
+        document.getElementById('habitColor').value = color;
+        const display = document.querySelector('.color-display');
+        if (display) display.style.backgroundColor = color;
+        
+        this.setSelectedColor(color);
+        
+        // Cerrar el selector
+        const selector = document.getElementById('colorSelector');
+        if (selector) selector.classList.remove('show');
+    }
+
+    setSelectedEmoji(emoji) {
+        const options = document.querySelectorAll('.emoji-option');
+        options.forEach(option => {
+            option.classList.toggle('selected', option.textContent === emoji);
+        });
+    }
+
+    setSelectedColor(color) {
+        const options = document.querySelectorAll('.color-option');
+        options.forEach(option => {
+            option.classList.toggle('selected', option.style.backgroundColor === color);
+        });
     }
 
     hideHabitModal() {
@@ -338,6 +520,11 @@ class HabitTracker {
                 if (isCompleted) {
                     dayElement.classList.add('completed');
                     dayElement.style.backgroundColor = habit.color;
+                } else if (progress > 0) {
+                    // Calcular opacidad basada en el progreso
+                    const opacity = Math.min(progress / habit.goal, 1);
+                    dayElement.style.backgroundColor = habit.color;
+                    dayElement.style.opacity = opacity;
                 }
                 
                 if (isFuture) {
@@ -352,6 +539,7 @@ class HabitTracker {
                         dayElement.style.boxSizing = 'border-box';
                     } else {
                         dayElement.style.border = `1px solid ${habit.color}`;
+                        dayElement.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
                         dayElement.style.boxSizing = 'border-box';
                     }
                 }
@@ -370,14 +558,17 @@ class HabitTracker {
         const habitData = {
             name: formData.get('habitName'),
             goal: parseInt(formData.get('habitGoal'), 10) || 1,
+            desiredStreak: parseInt(formData.get('habitDesiredStreak'), 10) || 7,
             icon: formData.get('habitIcon'),
             color: formData.get('habitColor')
         };
 
+        let habitId;
         if (this.habitToEdit) {
             const index = this.habits.findIndex(h => h.id === this.habitToEdit.id);
             if (index !== -1) {
                 this.habits[index] = { ...this.habits[index], ...habitData };
+                habitId = this.habitToEdit.id;
             }
         } else {
             const newHabit = {
@@ -386,11 +577,17 @@ class HabitTracker {
                 history: {}
             };
             this.habits.push(newHabit);
+            habitId = newHabit.id;
         }
 
         this.saveHabits();
         this.render();
         this.hideHabitModal();
+        
+        // Mostrar el modal de detalle del hábito guardado
+        setTimeout(() => {
+            this.showDetailModal(habitId);
+        }, 100);
     }
 
     deleteHabit() {
@@ -563,19 +760,28 @@ class HabitTracker {
             const dayTrack = document.createElement('div');
             dayTrack.className = 'day-track';
             
-            const isCompleted = habit.history[day.dateKey] > 0;
+            const progress = habit.history[day.dateKey] || 0;
+            const isCompleted = progress >= habit.goal;
             const isFuture = day.dateKey > todayKey;
             const isToday = day.dateKey === todayKey;
             
             let statusClass = 'day-status';
             if (isCompleted) statusClass += ' completed';
+            else if (progress > 0) statusClass += ' partial';
             if (isFuture) statusClass += ' future';
             if (isToday) statusClass += ' today';
             
+            // Calcular el ángulo del progreso para el círculo
+            const progressPercentage = habit.goal > 0 ? (progress / habit.goal) * 100 : 0;
+            const progressAngle = Math.min(progressPercentage, 100) * 3.6; // 360 grados / 100%
+            
             dayTrack.innerHTML = `
                 <span class="day-name">${day.shortName}</span>
-                <button class="${statusClass}" data-date="${day.dateKey}" data-action="toggle-day">
-                    ${isCompleted ? '✓' : ''}
+                <button class="${statusClass}" 
+                        data-date="${day.dateKey}" 
+                        data-action="toggle-day"
+                        style="--progress-angle: ${progressAngle}deg; --habit-color: ${habit.color}; --progress-opacity: ${progress > 0 && !isCompleted ? 1 : 0};">
+                    <span></span>
                 </button>
             `;
             
