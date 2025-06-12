@@ -389,7 +389,8 @@ h1 {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
-    background-color: var(--surface-color);
+    background-color: transparent;
+    backdrop-filter: blur(8px);
     border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
@@ -401,7 +402,8 @@ h1 {
 
 .modal-body {
     padding: var(--spacing-lg);
-    background-color: var(--surface-color);
+    background-color: transparent;
+    backdrop-filter: blur(8px);
 }
 
 .modal-actions {
@@ -410,13 +412,15 @@ h1 {
     justify-content: flex-end;
     gap: var(--spacing-sm);
     border-top: 1px solid var(--border-color);
-    background-color: var(--surface-color);
+    background-color: transparent;
+    backdrop-filter: blur(8px);
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
 /* Formulario dentro del modal */
 #habitForm {
-    background-color: var(--surface-color);
+    background-color: transparent;
+    backdrop-filter: blur(8px);
     padding: var(--spacing-lg);
 }
 
