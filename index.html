@@ -114,25 +114,27 @@
             
             <div class="habit-calendar-grid"></div>
             
-            <div class="habit-detail-stats">
-                <div class="completion-status">
-                    <span class="material-icons">check_circle</span>
-                    <span class="completion-text">Completado 0/0</span>
+            <div class="habit-detail-controls">
+                <button class="complete-button" data-action="complete-today">
+                    <span class="complete-text">Completar</span>
+                    <span class="complete-progress">0/1</span>
+                </button>
+                
+                <div class="streak-indicator">
+                    <span class="material-icons streak-icon">local_fire_department</span>
+                    <span class="streak-number">0</span>
                 </div>
-            </div>
-
-            <div class="habit-detail-actions">
+                
                 <button class="action-button" data-action="calendar">
                     <span class="material-icons">calendar_today</span>
                 </button>
+                
                 <button class="action-button" data-action="edit">
                     <span class="material-icons">edit</span>
                 </button>
+                
                 <button class="action-button" data-action="delete">
                     <span class="material-icons">delete</span>
-                </button>
-                <button class="action-button" data-action="share">
-                    <span class="material-icons">share</span>
                 </button>
             </div>
         </div>

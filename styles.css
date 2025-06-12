@@ -529,14 +529,16 @@ h1 {
     display: flex;
     flex-direction: column;
     background-color: #121212;
+    padding: 0;
 }
 
 .habit-detail-header {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--spacing-lg);
+    border-bottom: none;
+    background-color: #121212;
 }
 
 .habit-detail-info {
@@ -547,17 +549,26 @@ h1 {
 }
 
 .habit-detail-name {
-    font-size: 1.25rem;
-    font-weight: 500;
+    font-size: 1.5rem;
+    font-weight: 700;
     margin: 0;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .close-button {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
+    font-size: 24px;
+    transition: var(--transition-fast);
+}
+
+.close-button:hover {
+    color: white;
 }
 
 /* Contenedor principal del calendario */
@@ -572,14 +583,22 @@ h1 {
 /* Calendario */
 .habit-calendar-grid {
     display: grid;
-    grid-template-columns: repeat(50, 1fr);
+    grid-template-columns: repeat(24, 1fr);
     grid-template-rows: repeat(7, 1fr);
-    gap: 1px;
-    overflow-x: scroll;
-    padding: var(--spacing-md);
-    height: 70px;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--spacing-lg);
+    min-height: 150px;
+    max-height: 180px;
+    background-color: #121212;
+    flex: 1;
     scrollbar-width: none;
     -ms-overflow-style: none;
+}
+
+.habit-calendar-grid::-webkit-scrollbar {
+    display: none;
 }
 
 .habit-calendar-grid::-webkit-scrollbar {
@@ -606,61 +625,147 @@ h1 {
 }
 
 .calendar-day {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 1px;
-    width: 8px;
-    height: 8px;
+    aspect-ratio: 1;
+    background-color: rgba(76, 175, 80, 0.3);
+    border-radius: 2px;
+    min-width: 12px;
+    min-height: 12px;
     border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.calendar-day:hover:not(.future):not(.empty) {
+    background-color: rgba(76, 175, 80, 0.5);
 }
 
 .calendar-day.completed {
-    background-color: currentColor;
+    background-color: #4CAF50;
+    opacity: 1;
 }
 
-/* Estadísticas */
-.habit-detail-stats {
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.calendar-day.today {
+    border: 1px solid #4CAF50;
+    background-color: #4CAF50;
 }
 
-.completion-status {
+.calendar-day.future {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    cursor: default;
+}
+
+/* Controles del hábito */
+.habit-detail-controls {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    color: rgba(255, 255, 255, 0.6);
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background-color: #121212;
+}
+
+.complete-button {
+    flex: 1;
+    background-color: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: var(--spacing-md);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 60px;
+    justify-content: center;
+}
+
+.complete-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.complete-button.partial {
+    border-color: currentColor;
+    background-color: rgba(76, 175, 80, 0.5);
+    color: white;
+}
+
+.complete-button.completed {
+    border-color: currentColor;
+    background-color: currentColor;
+    color: white;
+}
+
+.complete-text {
+    font-weight: 500;
     font-size: 0.9rem;
 }
 
-/* Acciones */
-.habit-detail-actions {
+.complete-progress {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.streak-indicator {
     display: flex;
-    justify-content: space-around;
-    padding: var(--spacing-md);
-    background-color: #1a1a1a;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: var(--spacing-sm);
+    min-width: 60px;
+}
+
+.streak-icon {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.3);
+    transition: var(--transition-fast);
+}
+
+.streak-icon.active {
+    color: #ff6f00;
+}
+
+.streak-number {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.streak-number.active {
+    color: var(--text-color);
 }
 
 .action-button {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     padding: var(--spacing-sm);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: var(--transition-fast);
 }
 
 .action-button:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .action-button .material-icons {
     font-size: 20px;
 }
+
+/* Eliminar sección de acciones separada ya que está integrada en controles */
 
 @media (min-width: 768px) {
     .detail-modal {
@@ -669,5 +774,28 @@ h1 {
         max-height: 90vh;
         margin: auto;
         border-radius: var(--border-radius-lg);
+    }
+    
+    .habit-calendar-grid {
+        min-height: 160px;
+        max-height: 200px;
+    }
+    
+    .calendar-day {
+        min-width: 14px;
+        min-height: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .habit-calendar-grid {
+        min-height: 120px;
+        max-height: 150px;
+        gap: 1px;
+    }
+    
+    .calendar-day {
+        min-width: 10px;
+        min-height: 10px;
     }
 }

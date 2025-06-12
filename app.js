@@ -89,19 +89,21 @@ class HabitTracker {
 
     loadHabits() {
         try {
-            const savedHabits = localStorage.getItem('habits');
-            if (!savedHabits) {
-                this.habits = [];
-                return;
+            const habits = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key === 'habits') {
+                    const savedHabits = localStorage.getItem(key);
+                    if (savedHabits) {
+                        const parsedHabits = JSON.parse(savedHabits);
+                        if (Array.isArray(parsedHabits)) {
+                            habits.push(...parsedHabits);
+                        }
+                    }
+                }
             }
 
-            const parsedHabits = JSON.parse(savedHabits);
-            if (!Array.isArray(parsedHabits)) {
-                this.habits = [];
-                return;
-            }
-
-            this.habits = parsedHabits.map(habit => {
+            this.habits = habits.map(habit => {
                 if (!habit || typeof habit !== 'object') return null;
 
                 return {
@@ -121,8 +123,23 @@ class HabitTracker {
     }
 
     saveHabits() {
-        localStorage.setItem('habits', JSON.stringify(this.habits));
-        this.render();
+        try {
+            const habitsData = JSON.stringify(this.habits);
+            const temp = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                temp[key] = localStorage.getItem(key);
+            }
+            temp['habits'] = habitsData;
+            
+            localStorage.clear();
+            Object.keys(temp).forEach(key => {
+                localStorage.setItem(key, temp[key]);
+            });
+        } catch (error) {
+            console.error('Error al guardar hábitos:', error);
+        }
+        // No llamar render aquí automáticamente
     }
 
     setupEventListeners() {
@@ -187,14 +204,37 @@ class HabitTracker {
                 case 'calendar':
                     // Implementar calendario
                     break;
+                case 'complete-today':
+                    const todayKey = this.dateHelpers.getTodayKey();
+                    this.updateDayProgress(habitId, todayKey);
+                    this.updateDetailView(habitId);
+                    this.render();
+                    break;
                 case 'toggle-day':
                     const button = e.target.closest('.calendar-day');
-                    if (button && !button.classList.contains('disabled')) {
+                    if (button && !button.classList.contains('future')) {
                         const dateKey = button.dataset.date;
                         this.updateDayProgress(habitId, dateKey);
                         this.updateDetailView(habitId);
+                        this.render(); // Actualizar también la vista principal
                     }
                     break;
+            }
+        });
+
+        // Agregar evento específico para hacer clic en cualquier día del calendario
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('calendar-day') && !e.target.classList.contains('future') && !e.target.classList.contains('empty')) {
+                const modal = document.getElementById('habitDetailModal');
+                if (modal.classList.contains('active')) {
+                    const habitId = modal.dataset.habitId;
+                    const dateKey = e.target.dataset.date;
+                    if (habitId && dateKey) {
+                        this.updateDayProgress(habitId, dateKey);
+                        this.updateDetailView(habitId);
+                        this.render();
+                    }
+                }
             }
         });
     }
@@ -258,36 +298,68 @@ class HabitTracker {
         const modal = document.getElementById('habitDetailModal');
         const calendarGrid = modal.querySelector('.habit-calendar-grid');
         calendarGrid.innerHTML = '';
-        calendarGrid.style.color = habit.color;
 
-        // Generar cuadrícula más pequeña de 30x7
-        const totalDays = 30 * 7;
+        // Configurar exactamente 24 columnas (semanas) y 7 filas (días)
+        calendarGrid.style.gridTemplateColumns = `repeat(24, 1fr)`;
+        calendarGrid.style.gridTemplateRows = `repeat(7, 1fr)`;
+
         const today = new Date();
-        const dates = [];
+        
+        // Empezar desde hace 24 semanas completas
+        const startOfWeek = new Date(today);
+        const dayOfWeek = (startOfWeek.getDay() + 6) % 7; // 0 = lunes
+        startOfWeek.setDate(today.getDate() - dayOfWeek); // Ir al lunes de esta semana
+        startOfWeek.setDate(startOfWeek.getDate() - (23 * 7)); // Retroceder 23 semanas más
 
-        // Generar fechas desde hoy hacia atrás
-        for (let i = 0; i < totalDays; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() - i);
-            dates.push(date);
+        // Grid se llena por COLUMNAS (semanas), no por filas
+        // Cada columna es una semana (7 días)
+        for (let week = 0; week < 24; week++) {
+            for (let day = 0; day < 7; day++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + (week * 7) + day);
+                
+                const dateKey = this.dateHelpers.getDateKey(date);
+                const progress = habit.history[dateKey] || 0;
+                const isCompleted = progress >= habit.goal;
+                const isFuture = date > today;
+                const isToday = dateKey === this.dateHelpers.getTodayKey();
+
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.dataset.date = dateKey;
+                
+                // CSS Grid se llena por filas por defecto, pero queremos llenar por columnas
+                // Calculamos la posición manualmente
+                const gridRow = day + 1;
+                const gridColumn = week + 1;
+                dayElement.style.gridRow = gridRow;
+                dayElement.style.gridColumn = gridColumn;
+                
+                if (isCompleted) {
+                    dayElement.classList.add('completed');
+                    dayElement.style.backgroundColor = habit.color;
+                }
+                
+                if (isFuture) {
+                    dayElement.classList.add('future');
+                }
+                
+                if (isToday) {
+                    dayElement.classList.add('today');
+                    if (isCompleted) {
+                        dayElement.style.backgroundColor = habit.color;
+                        dayElement.style.border = `2px solid ${habit.color}`;
+                    } else {
+                        dayElement.style.border = `2px solid ${habit.color}`;
+                    }
+                }
+
+                calendarGrid.appendChild(dayElement);
+            }
         }
 
-        // Ordenar fechas de más antigua a más reciente
-        dates.sort((a, b) => a - b);
-
-        // Crear la cuadrícula
-        dates.forEach(date => {
-            const dateKey = this.dateHelpers.getDateKey(date);
-            const isCompleted = habit.history[dateKey] > 0;
-
-            const dayElement = document.createElement('div');
-            dayElement.className = `calendar-day${isCompleted ? ' completed' : ''}`;
-            calendarGrid.appendChild(dayElement);
-        });
-
-        // Actualizar estadísticas
-        const completedDays = Object.values(habit.history).filter(v => v > 0).length;
-        modal.querySelector('.completion-text').textContent = `Completado ${completedDays} días`;
+        // Actualizar controles y estadísticas
+        this.updateDetailControls(habit);
     }
 
     handleHabitSubmit(e) {
@@ -315,13 +387,15 @@ class HabitTracker {
         }
 
         this.saveHabits();
+        this.render();
         this.hideHabitModal();
     }
 
-    confirmDelete() {
+    deleteHabit() {
         if (!this.habitToDelete) return;
         this.habits = this.habits.filter(h => h.id !== this.habitToDelete);
         this.saveHabits();
+        this.render();
         this.hideDeleteModal();
     }
 
@@ -345,36 +419,68 @@ class HabitTracker {
         this.render();
     }
 
-    updateDetailStatusButton(habit) {
-        const statusBtn = this.detailModal.querySelector('#detailStatusBtn');
-        const todayKey = this.dateHelpers.getTodayKey();
-        const progress = habit.history[todayKey] || 0;
-        const isCompleted = progress >= habit.goal;
+    calculateStreak(habit) {
+        const today = new Date();
+        let streak = 0;
+        let currentDate = new Date(today);
         
-        if (isCompleted) {
-            statusBtn.innerHTML = `<span class="material-icons">check_circle</span> Completado`;
-            statusBtn.style.backgroundColor = habit.color;
-            statusBtn.style.borderColor = habit.color;
-            statusBtn.classList.add('completed');
-        } else {
-            statusBtn.innerHTML = `<span class="material-icons">radio_button_unchecked</span> No completado ${progress}/${habit.goal}`;
-            statusBtn.style.backgroundColor = 'transparent';
-            statusBtn.style.borderColor = 'var(--border-color)';
-            statusBtn.classList.remove('completed');
+        while (true) {
+            const dateKey = this.dateHelpers.getDateKey(currentDate);
+            const progress = habit.history[dateKey] || 0;
+            
+            if (progress >= habit.goal) {
+                streak++;
+                currentDate.setDate(currentDate.getDate() - 1);
+            } else {
+                break;
+            }
         }
+        
+        return streak;
     }
 
-    updateDetailStreakChip(habit) {
-        const streakChip = this.detailModal.querySelector('#detailStreakChip');
-        const streakCountEl = this.detailModal.querySelector('#detailStreakCount');
+    updateDetailControls(habit) {
+        const modal = document.getElementById('habitDetailModal');
+        const completeButton = modal.querySelector('.complete-button');
+        const completeText = modal.querySelector('.complete-text');
+        const completeProgress = modal.querySelector('.complete-progress');
+        const streakIcon = modal.querySelector('.streak-icon');
+        const streakNumber = modal.querySelector('.streak-number');
+        
+        const todayKey = this.dateHelpers.getTodayKey();
+        const todayProgress = habit.history[todayKey] || 0;
+        const isCompleted = todayProgress >= habit.goal;
+        
+        // Actualizar botón de completar
+        completeButton.style.borderColor = habit.color;
+        completeProgress.textContent = `${todayProgress}/${habit.goal}`;
+        
+        if (isCompleted) {
+            completeButton.classList.add('completed');
+            completeButton.classList.remove('partial');
+            completeButton.style.backgroundColor = habit.color;
+            completeText.textContent = 'Completado';
+        } else if (todayProgress > 0) {
+            completeButton.classList.add('partial');
+            completeButton.classList.remove('completed');
+            completeButton.style.backgroundColor = `${habit.color}80`; // 50% opacity
+            completeText.textContent = 'Completar';
+        } else {
+            completeButton.classList.remove('partial', 'completed');
+            completeButton.style.backgroundColor = 'transparent';
+            completeText.textContent = 'Completar';
+        }
+        
+        // Actualizar racha
         const streak = this.calculateStreak(habit);
+        streakNumber.textContent = streak;
         
         if (streak > 0) {
-            streakCountEl.textContent = streak;
-            streakChip.classList.add('active');
+            streakIcon.classList.add('active');
+            streakNumber.classList.add('active');
         } else {
-            streakCountEl.textContent = '0';
-            streakChip.classList.remove('active');
+            streakIcon.classList.remove('active');
+            streakNumber.classList.remove('active');
         }
     }
 
