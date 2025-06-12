@@ -378,9 +378,9 @@ h1 {
 .modal-content {
     background-color: var(--surface-color);
     border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
+    padding: 0;
     width: 100%;
-    max-width: 400px;
+    max-width: 600px;
 }
 
 .modal-header {
@@ -389,6 +389,8 @@ h1 {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
 .modal-header h2 {
@@ -399,6 +401,7 @@ h1 {
 
 .modal-body {
     padding: var(--spacing-lg);
+    background-color: var(--surface-color);
 }
 
 .modal-actions {
@@ -407,6 +410,14 @@ h1 {
     justify-content: flex-end;
     gap: var(--spacing-sm);
     border-top: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+/* Formulario dentro del modal */
+#habitForm {
+    background-color: var(--surface-color);
+    padding: var(--spacing-lg);
 }
 
 /* Mensaje de no hábitos */
@@ -665,6 +676,25 @@ h1 {
     border-color: var(--primary-color);
 }
 
+/* Layout para formulario */
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.form-row .input-group {
+    flex: 1;
+}
+
+.form-row-3 {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.form-row-3 .input-group {
+    flex: 1;
+}
+
 /* Selectores personalizados */
 .icon-display, .color-display {
     width: 100%;
@@ -860,6 +890,19 @@ h1 {
         height: 48px;
         bottom: 4.5rem;
     }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row-3 {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        max-width: 90vw;
+        margin: var(--spacing-md);
+    }
 }
 
 @media (max-width: 480px) {
@@ -878,6 +921,15 @@ h1 {
 
     .day-name {
         font-size: 0.65rem;
+    }
+
+    .form-row-3 {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        max-width: 95vw;
+        margin: var(--spacing-sm);
     }
 }
 
