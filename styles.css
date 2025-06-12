@@ -362,11 +362,11 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.8);
     z-index: 1000;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
     padding: 0;
 }
 
@@ -376,11 +376,14 @@ h1 {
 }
 
 .modal-content {
-    background-color: var(--surface-color);
+    background-color: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(12px);
     border-radius: var(--border-radius-lg);
     padding: 0;
     width: 100%;
     max-width: 600px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
 .modal-header {
@@ -388,9 +391,8 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background-color: transparent;
-    backdrop-filter: blur(8px);
     border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
@@ -398,12 +400,12 @@ h1 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 500;
+    color: white;
 }
 
 .modal-body {
     padding: var(--spacing-lg);
     background-color: transparent;
-    backdrop-filter: blur(8px);
 }
 
 .modal-actions {
@@ -411,16 +413,14 @@ h1 {
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-sm);
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     background-color: transparent;
-    backdrop-filter: blur(8px);
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
 /* Formulario dentro del modal */
 #habitForm {
     background-color: transparent;
-    backdrop-filter: blur(8px);
     padding: var(--spacing-lg);
 }
 
@@ -442,6 +442,9 @@ h1 {
     flex-direction: column;
     background-color: transparent;
     padding: 0;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
 }
 
 .habit-detail-header {
@@ -730,7 +733,7 @@ h1 {
 }
 
 .emoji-selector, .color-selector {
-    display: none; /* Oculto por defecto */
+    display: none;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(4, 1fr);
     gap: 8px;
@@ -745,7 +748,7 @@ h1 {
 }
 
 .emoji-selector.show, .color-selector.show {
-    display: grid !important; /* Forzar mostrar cuando tiene la clase show */
+    display: grid !important;
 }
 
 .emoji-option {
