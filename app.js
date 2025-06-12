@@ -299,21 +299,21 @@ class HabitTracker {
         const calendarGrid = modal.querySelector('.habit-calendar-grid');
         calendarGrid.innerHTML = '';
 
-        // Configurar exactamente 24 columnas (semanas) y 7 filas (días)
-        calendarGrid.style.gridTemplateColumns = `repeat(24, 1fr)`;
+        // Configurar exactamente 30 columnas (semanas) y 7 filas (días)
+        calendarGrid.style.gridTemplateColumns = `repeat(30, 1fr)`;
         calendarGrid.style.gridTemplateRows = `repeat(7, 1fr)`;
 
         const today = new Date();
         
-        // Empezar desde hace 24 semanas completas
+        // Empezar desde hace 30 semanas completas
         const startOfWeek = new Date(today);
         const dayOfWeek = (startOfWeek.getDay() + 6) % 7; // 0 = lunes
         startOfWeek.setDate(today.getDate() - dayOfWeek); // Ir al lunes de esta semana
-        startOfWeek.setDate(startOfWeek.getDate() - (23 * 7)); // Retroceder 23 semanas más
+        startOfWeek.setDate(startOfWeek.getDate() - (29 * 7)); // Retroceder 29 semanas más
 
         // Grid se llena por COLUMNAS (semanas), no por filas
         // Cada columna es una semana (7 días)
-        for (let week = 0; week < 24; week++) {
+        for (let week = 0; week < 30; week++) {
             for (let day = 0; day < 7; day++) {
                 const date = new Date(startOfWeek);
                 date.setDate(startOfWeek.getDate() + (week * 7) + day);
@@ -348,9 +348,11 @@ class HabitTracker {
                     dayElement.classList.add('today');
                     if (isCompleted) {
                         dayElement.style.backgroundColor = habit.color;
-                        dayElement.style.border = `2px solid ${habit.color}`;
+                        dayElement.style.border = `1px solid ${habit.color}`;
+                        dayElement.style.boxSizing = 'border-box';
                     } else {
-                        dayElement.style.border = `2px solid ${habit.color}`;
+                        dayElement.style.border = `1px solid ${habit.color}`;
+                        dayElement.style.boxSizing = 'border-box';
                     }
                 }
 
@@ -530,9 +532,18 @@ class HabitTracker {
             </div>
         `;
 
+        const streak = this.calculateStreak(habit);
+        const streakIndicator = document.createElement('div');
+        streakIndicator.className = 'habit-streak-mini';
+        streakIndicator.innerHTML = `
+            <span class="material-icons streak-icon-mini ${streak > 0 ? 'active' : ''}">local_fire_department</span>
+            <span class="streak-number-mini ${streak > 0 ? 'active' : ''}">${streak}</span>
+        `;
+
         const weekTrack = this.renderWeekTrack(habit);
         
         habitCard.appendChild(header);
+        habitCard.appendChild(streakIndicator);
         habitCard.appendChild(weekTrack);
 
         return habitCard;
