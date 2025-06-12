@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Hábitos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Mis Hábitos</h1>
+            <div class="view-options">
+                <button class="view-button active" data-view="list">
+                    <span class="material-icons">view_agenda</span>
+                    Lista
+                </button>
+            </div>
+        </header>
+
+        <main id="habitsContainer" class="habits-container">
+            <!-- Los hábitos se insertarán aquí dinámicamente -->
+        </main>
+
+        <button id="addHabitBtn" class="add-habit-button">
+            <span class="material-icons">add</span>
+        </button>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active">
+                <span class="material-icons">home</span>
+                <span>Inicio</span>
+            </button>
+            <button class="nav-item">
+                <span class="material-icons">insights</span>
+                <span>Estadísticas</span>
+            </button>
+            <button class="nav-item">
+                <span class="material-icons">settings</span>
+                <span>Ajustes</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Modal para agregar/editar hábito -->
+    <div id="habitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Hábito</h2>
+                <button class="close-button">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="habitForm">
+                <div class="input-group">
+                    <label for="habitName">Nombre del hábito</label>
+                    <input type="text" id="habitName" name="habitName" required>
+                </div>
+                <div class="input-group">
+                    <label for="habitGoal">Meta diaria</label>
+                    <input type="number" id="habitGoal" name="habitGoal" min="1" value="1" required>
+                </div>
+                <div class="input-group">
+                    <label for="habitIcon">Icono</label>
+                    <input type="text" id="habitIcon" name="habitIcon" value="⭐" required>
+                </div>
+                <div class="input-group">
+                    <label for="habitColor">Color</label>
+                    <input type="color" id="habitColor" name="habitColor" value="#4CAF50" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelHabit" class="button">Cancelar</button>
+                    <button type="submit" class="button primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Eliminar Hábito</h2>
+                <button class="close-button">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar este hábito?</p>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelDelete" class="button">Cancelar</button>
+                <button id="confirmDelete" class="button danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de detalle del hábito -->
+    <div id="habitDetailModal" class="modal">
+        <div class="modal-content detail-modal">
+            <div class="habit-detail-header">
+                <div class="habit-detail-info">
+                    <div class="habit-icon-container">
+                        <span class="habit-icon"></span>
+                    </div>
+                    <h2 class="habit-detail-name"></h2>
+                </div>
+                <button class="close-button" data-action="close-detail">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            
+            <div class="habit-calendar-grid"></div>
+            
+            <div class="habit-detail-stats">
+                <div class="completion-status">
+                    <span class="material-icons">check_circle</span>
+                    <span class="completion-text">Completado 0/0</span>
+                </div>
+            </div>
+
+            <div class="habit-detail-actions">
+                <button class="action-button" data-action="calendar">
+                    <span class="material-icons">calendar_today</span>
+                </button>
+                <button class="action-button" data-action="edit">
+                    <span class="material-icons">edit</span>
+                </button>
+                <button class="action-button" data-action="delete">
+                    <span class="material-icons">delete</span>
+                </button>
+                <button class="action-button" data-action="share">
+                    <span class="material-icons">share</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
