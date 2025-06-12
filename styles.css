@@ -761,13 +761,13 @@ h1 {
     display: grid !important;
 }
 
-.emoji-option {
+.emoji-option, .color-option {
     width: 48px;
     height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-color);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -775,8 +775,8 @@ h1 {
     transition: var(--transition-fast);
 }
 
-.emoji-option:hover {
-    background-color: var(--hover-color);
+.emoji-option:hover, .color-option:hover {
+    background-color: rgba(255, 255, 255, 0.15);
     transform: scale(1.05);
 }
 
@@ -784,22 +784,16 @@ h1 {
     background-color: var(--primary-color);
 }
 
-.color-option {
-    width: 48px;
-    height: 48px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.color-option:hover {
-    transform: scale(1.1);
-}
-
 .color-option.selected {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 3px white;
+    box-shadow: 0 0 0 2px white;
+    transform: scale(1.05);
+}
+
+.color-option-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: block;
 }
 
 /* Botones */

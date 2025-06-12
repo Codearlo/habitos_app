@@ -382,7 +382,6 @@ class HabitTracker {
         const colorInput = document.getElementById('habitColor');
         const inputGroup = colorInput.parentNode;
         
-        // Exactamente 24 colores para llenar 6x4
         const colors = [
             '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', '#607D8B',
             '#8BC34A', '#03A9F4', '#FFC107', '#E91E63', '#673AB7', '#795548',
@@ -390,7 +389,6 @@ class HabitTracker {
             '#689F38', '#0288D1', '#F57C00', '#C2185B', '#512DA8', '#455A64'
         ];
         
-        // Crear display
         const display = document.createElement('div');
         display.className = 'color-display';
         display.style.backgroundColor = colorInput.value || '#4CAF50';
@@ -400,7 +398,6 @@ class HabitTracker {
             this.toggleColorSelector();
         };
         
-        // Crear selector
         const selector = document.createElement('div');
         selector.className = 'color-selector';
         selector.id = 'colorSelector';
@@ -409,7 +406,12 @@ class HabitTracker {
             const option = document.createElement('button');
             option.type = 'button';
             option.className = 'color-option';
-            option.style.backgroundColor = color;
+            
+            const swatch = document.createElement('span');
+            swatch.className = 'color-option-swatch';
+            swatch.style.backgroundColor = color;
+            option.appendChild(swatch);
+
             option.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -418,7 +420,6 @@ class HabitTracker {
             selector.appendChild(option);
         });
         
-        // Ocultar input original y agregar nuevos elementos
         colorInput.style.display = 'none';
         inputGroup.appendChild(display);
         inputGroup.appendChild(selector);
@@ -428,7 +429,6 @@ class HabitTracker {
         const selector = document.getElementById('emojiSelector');
         const colorSelector = document.getElementById('colorSelector');
         
-        // Cerrar el selector de colores si está abierto
         if (colorSelector) {
             colorSelector.classList.remove('show');
         }
@@ -442,7 +442,6 @@ class HabitTracker {
         const selector = document.getElementById('colorSelector');
         const emojiSelector = document.getElementById('emojiSelector');
         
-        // Cerrar el selector de emojis si está abierto
         if (emojiSelector) {
             emojiSelector.classList.remove('show');
         }
@@ -459,7 +458,6 @@ class HabitTracker {
         
         this.setSelectedEmoji(emoji);
         
-        // Cerrar el selector
         const selector = document.getElementById('emojiSelector');
         if (selector) selector.classList.remove('show');
     }
@@ -471,7 +469,6 @@ class HabitTracker {
         
         this.setSelectedColor(color);
         
-        // Cerrar el selector
         const selector = document.getElementById('colorSelector');
         if (selector) selector.classList.remove('show');
     }
@@ -486,7 +483,10 @@ class HabitTracker {
     setSelectedColor(color) {
         const options = document.querySelectorAll('.color-option');
         options.forEach(option => {
-            option.classList.toggle('selected', option.style.backgroundColor === color);
+            const swatch = option.querySelector('.color-option-swatch');
+            if (swatch) {
+                 option.classList.toggle('selected', swatch.style.backgroundColor === color);
+            }
         });
     }
 
@@ -517,7 +517,6 @@ class HabitTracker {
         const modal = document.getElementById('habitDetailModal');
         modal.dataset.habitId = habitId;
 
-        // Actualizar encabezado
         const iconContainer = modal.querySelector('.habit-icon-container');
         iconContainer.style.backgroundColor = `${habit.color}20`;
         modal.querySelector('.habit-icon').textContent = habit.icon;
@@ -535,20 +534,16 @@ class HabitTracker {
         const calendarGrid = modal.querySelector('.habit-calendar-grid');
         calendarGrid.innerHTML = '';
 
-        // Configurar exactamente 30 columnas (semanas) y 7 filas (días)
         calendarGrid.style.gridTemplateColumns = `repeat(30, 1fr)`;
         calendarGrid.style.gridTemplateRows = `repeat(7, 1fr)`;
 
         const today = new Date();
         
-        // Empezar desde hace 30 semanas completas
         const startOfWeek = new Date(today);
-        const dayOfWeek = (startOfWeek.getDay() + 6) % 7; // 0 = lunes
-        startOfWeek.setDate(today.getDate() - dayOfWeek); // Ir al lunes de esta semana
-        startOfWeek.setDate(startOfWeek.getDate() - (29 * 7)); // Retroceder 29 semanas más
+        const dayOfWeek = (startOfWeek.getDay() + 6) % 7;
+        startOfWeek.setDate(today.getDate() - dayOfWeek);
+        startOfWeek.setDate(startOfWeek.getDate() - (29 * 7));
 
-        // Grid se llena por COLUMNAS (semanas), no por filas
-        // Cada columna es una semana (7 días)
         for (let week = 0; week < 30; week++) {
             for (let day = 0; day < 7; day++) {
                 const date = new Date(startOfWeek);
@@ -564,8 +559,6 @@ class HabitTracker {
                 dayElement.className = 'calendar-day';
                 dayElement.dataset.date = dateKey;
                 
-                // CSS Grid se llena por filas por defecto, pero queremos llenar por columnas
-                // Calculamos la posición manualmente
                 const gridRow = day + 1;
                 const gridColumn = week + 1;
                 dayElement.style.gridRow = gridRow;
@@ -575,7 +568,6 @@ class HabitTracker {
                     dayElement.classList.add('completed');
                     dayElement.style.backgroundColor = habit.color;
                 } else if (progress > 0) {
-                    // Calcular opacidad basada en el progreso
                     const opacity = Math.min(progress / habit.goal, 1);
                     dayElement.style.backgroundColor = habit.color;
                     dayElement.style.opacity = opacity;
@@ -602,7 +594,6 @@ class HabitTracker {
             }
         }
 
-        // Actualizar controles y estadísticas
         this.updateDetailControls(habit);
     }
 
@@ -638,7 +629,6 @@ class HabitTracker {
         this.render();
         this.hideHabitModal();
         
-        // Mostrar el modal de detalle del hábito guardado
         setTimeout(() => {
             this.showDetailModal(habitId);
         }, 100);
@@ -704,7 +694,6 @@ class HabitTracker {
         const todayProgress = habit.history[todayKey] || 0;
         const isCompleted = todayProgress >= habit.goal;
         
-        // Actualizar botón de completar
         completeButton.style.borderColor = habit.color;
         completeProgress.textContent = `${todayProgress}/${habit.goal}`;
         
@@ -716,7 +705,7 @@ class HabitTracker {
         } else if (todayProgress > 0) {
             completeButton.classList.add('partial');
             completeButton.classList.remove('completed');
-            completeButton.style.backgroundColor = `${habit.color}80`; // 50% opacity
+            completeButton.style.backgroundColor = `${habit.color}80`;
             completeText.textContent = 'Completar';
         } else {
             completeButton.classList.remove('partial', 'completed');
@@ -724,7 +713,6 @@ class HabitTracker {
             completeText.textContent = 'Completar';
         }
         
-        // Actualizar racha
         const streak = this.calculateStreak(habit);
         streakNumber.textContent = streak;
         
@@ -807,7 +795,6 @@ class HabitTracker {
         const today = new Date();
         const todayKey = this.dateHelpers.getTodayKey();
         
-        // Obtener los días centrados alrededor de hoy
         const days = this.getWeekDaysCenteredAroundToday();
         
         days.forEach(day => {
@@ -825,9 +812,8 @@ class HabitTracker {
             if (isFuture) statusClass += ' future';
             if (isToday) statusClass += ' today';
             
-            // Calcular el ángulo del progreso para el círculo
             const progressPercentage = habit.goal > 0 ? (progress / habit.goal) * 100 : 0;
-            const progressAngle = Math.min(progressPercentage, 100) * 3.6; // 360 grados / 100%
+            const progressAngle = Math.min(progressPercentage, 100) * 3.6;
             
             dayTrack.innerHTML = `
                 <span class="day-name">${day.shortName}</span>
@@ -858,7 +844,6 @@ class HabitTracker {
             6: { long: 'Sábado', short: 'Sáb' }
         };
 
-        // Agregar 3 días antes
         for (let i = 3; i > 0; i--) {
             const date = new Date(today);
             date.setDate(today.getDate() - i);
@@ -870,7 +855,6 @@ class HabitTracker {
             });
         }
 
-        // Agregar el día actual
         days.push({
             date: today,
             dateKey: this.dateHelpers.getDateKey(today),
@@ -878,7 +862,6 @@ class HabitTracker {
             longName: dayNames[today.getDay()].long
         });
 
-        // Agregar 3 días después
         for (let i = 1; i <= 3; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() + i);
