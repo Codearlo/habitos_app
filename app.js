@@ -62,6 +62,7 @@ class HabitTracker {
         this.dateHelpers = new DateHelpers();
         this.habitToEdit = null;
         this.habitToDelete = null;
+        this.currentView = 'list';
         this.getDOMElements();
         this.setupEventListeners();
         this.loadHabits();
@@ -70,12 +71,14 @@ class HabitTracker {
 
     getDOMElements() {
         this.habitsContainer = document.getElementById('habitsContainer');
+        this.habitsGridContainer = document.getElementById('habitsGridContainer');
         this.addHabitBtn = document.getElementById('addHabitBtn');
         this.habitModal = document.getElementById('habitModal');
         this.habitForm = document.getElementById('habitForm');
         this.deleteModal = document.getElementById('deleteModal');
         this.detailModal = document.getElementById('habitDetailModal');
         this.confirmDeleteBtn = document.getElementById('confirmDelete');
+        this.viewOptions = document.querySelector('.view-options');
     }
 
     hexToRgb(hex) {
@@ -198,6 +201,21 @@ class HabitTracker {
             } else {
                 this.showDetailModal(habitId);
             }
+        });
+
+        this.habitsGridContainer.addEventListener('click', (e) => {
+            const habitCard = e.target.closest('.habit-grid-card');
+            if (habitCard) {
+                this.showDetailModal(habitCard.dataset.habitId);
+            }
+        });
+
+        this.viewOptions.addEventListener('click', (e) => {
+            const button = e.target.closest('.view-button');
+            if (!button) return;
+
+            this.currentView = button.dataset.view;
+            this.render();
         });
 
         const detailModal = document.getElementById('habitDetailModal');
@@ -518,56 +536,7 @@ class HabitTracker {
     
         const modal = document.getElementById('habitDetailModal');
         const calendarGrid = modal.querySelector('.habit-calendar-grid');
-        calendarGrid.innerHTML = '';
-    
-        calendarGrid.style.gridTemplateColumns = `repeat(30, 1fr)`;
-        calendarGrid.style.gridTemplateRows = `repeat(7, 1fr)`;
-    
-        const today = new Date();
-        const todayKey = this.dateHelpers.getTodayKey();
-        
-        const startOfWeek = new Date(today);
-        const dayOfWeek = (startOfWeek.getDay() + 6) % 7;
-        startOfWeek.setDate(today.getDate() - dayOfWeek);
-        startOfWeek.setDate(startOfWeek.getDate() - (29 * 7));
-    
-        for (let week = 0; week < 30; week++) {
-            for (let day = 0; day < 7; day++) {
-                const date = new Date(startOfWeek);
-                date.setDate(startOfWeek.getDate() + (week * 7) + day);
-                
-                const dateKey = this.dateHelpers.getDateKey(date);
-                const progress = habit.history[dateKey] || 0;
-                const isCompleted = progress >= habit.goal;
-                const isPartial = progress > 0 && !isCompleted;
-                const isFuture = date > today;
-                const isToday = dateKey === todayKey;
-    
-                const dayElement = document.createElement('button');
-                dayElement.dataset.date = dateKey;
-                dayElement.dataset.action = 'toggle-day';
-    
-                let statusClass = 'calendar-day';
-                if (isCompleted) statusClass += ' completed';
-                else if (isPartial) statusClass += ' partial';
-                if (isFuture) statusClass += ' future';
-                if (isToday) statusClass += ' today';
-                dayElement.className = statusClass;
-    
-                const progressOpacity = isPartial ? Math.min(progress / habit.goal, 1) : 0;
-    
-                dayElement.style.setProperty('--habit-color', habit.color);
-                dayElement.style.setProperty('--progress-opacity', progressOpacity);
-    
-                const gridRow = day + 1;
-                const gridColumn = week + 1;
-                dayElement.style.gridRow = gridRow;
-                dayElement.style.gridColumn = gridColumn;
-    
-                calendarGrid.appendChild(dayElement);
-            }
-        }
-    
+        this.populateCalendarGrid(habit, calendarGrid);
         this.updateDetailControls(habit);
     }
 
@@ -704,33 +673,50 @@ class HabitTracker {
         }
     }
 
-    renderYearGrid(habit) {
-        const grid = this.detailModal.querySelector('#yearGrid');
-        grid.innerHTML = '';
-        const yearDates = this.dateHelpers.getYearDates();
+    populateCalendarGrid(habit, container) {
+        container.innerHTML = '';
+        const today = new Date();
+        const todayKey = this.dateHelpers.getTodayKey();
         
-        const firstDay = yearDates[0].getDay();
-        const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-        
-        grid.style.gridTemplateColumns = `repeat(${Math.ceil((yearDates.length + adjustedFirstDay) / 7)}, 1fr)`;
-
-        for (let i = 0; i < adjustedFirstDay; i++) {
-            grid.appendChild(document.createElement('div'));
-        }
-
-        yearDates.forEach(date => {
-            const dayElement = document.createElement('div');
-            const dateKey = this.dateHelpers.getDateKey(date);
-            const progress = habit.history[dateKey] || 0;
-            const opacity = habit.goal > 0 ? progress / habit.goal : 0;
-            
-            dayElement.className = 'year-grid-day';
-            if (opacity > 0) {
-                dayElement.style.backgroundColor = habit.color;
-                dayElement.style.opacity = opacity;
+        const startOfWeek = new Date(today);
+        const dayOfWeek = (startOfWeek.getDay() + 6) % 7;
+        startOfWeek.setDate(today.getDate() - dayOfWeek);
+        startOfWeek.setDate(startOfWeek.getDate() - (29 * 7));
+    
+        for (let week = 0; week < 30; week++) {
+            for (let day = 0; day < 7; day++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + (week * 7) + day);
+                
+                const dateKey = this.dateHelpers.getDateKey(date);
+                const progress = habit.history[dateKey] || 0;
+                const isCompleted = progress >= habit.goal;
+                const isPartial = progress > 0 && !isCompleted;
+                const isFuture = date > today;
+                const isToday = dateKey === todayKey;
+    
+                const dayElement = document.createElement('div');
+                
+                let statusClass = 'calendar-day';
+                if (isCompleted) statusClass += ' completed';
+                else if (isPartial) statusClass += ' partial';
+                if (isFuture) statusClass += ' future';
+                if (isToday) statusClass += ' today';
+                dayElement.className = statusClass;
+    
+                const progressOpacity = isPartial ? Math.min(progress / habit.goal, 1) : 0;
+    
+                dayElement.style.setProperty('--habit-color', habit.color);
+                dayElement.style.setProperty('--progress-opacity', progressOpacity);
+    
+                const gridRow = day + 1;
+                const gridColumn = week + 1;
+                dayElement.style.gridRow = gridRow;
+                dayElement.style.gridColumn = gridColumn;
+    
+                container.appendChild(dayElement);
             }
-            grid.appendChild(dayElement);
-        });
+        }
     }
 
     renderHabitCard(habit) {
@@ -855,19 +841,72 @@ class HabitTracker {
         return days;
     }
 
-    render() {
+    renderListView() {
         this.habitsContainer.innerHTML = '';
-
         const filteredHabits = this.habits.filter(habit => !habit.archived);
-
         if (filteredHabits.length === 0) {
             this.habitsContainer.innerHTML = '<p class="no-habits-message">Aún no tienes hábitos. ¡Añade uno para empezar!</p>';
             return;
         }
-
         filteredHabits.forEach(habit => {
             const habitCard = this.renderHabitCard(habit);
             this.habitsContainer.appendChild(habitCard);
         });
+    }
+
+    renderGridView() {
+        this.habitsGridContainer.innerHTML = '';
+        const filteredHabits = this.habits.filter(habit => !habit.archived);
+        if (filteredHabits.length === 0) {
+            this.habitsGridContainer.innerHTML = '<p class="no-habits-message">Aún no tienes hábitos. ¡Añade uno para empezar!</p>';
+            return;
+        }
+
+        filteredHabits.forEach(habit => {
+            const card = document.createElement('div');
+            card.className = 'habit-grid-card';
+            card.dataset.habitId = habit.id;
+
+            const streak = this.calculateStreak(habit);
+            const header = document.createElement('div');
+            header.className = 'habit-detail-header';
+            header.innerHTML = `
+                <div class="habit-detail-info">
+                    <div class="habit-icon-container" style="background-color: ${habit.color}20">
+                        <span class="habit-icon">${habit.icon}</span>
+                    </div>
+                    <h2 class="habit-detail-name">${habit.name}</h2>
+                </div>
+                <div class="habit-streak-mini">
+                    <span class="material-icons streak-icon-mini ${streak > 0 ? 'active' : ''}">local_fire_department</span>
+                    <span class="streak-number-mini ${streak > 0 ? 'active' : ''}">${streak}</span>
+                </div>
+            `;
+
+            const calendarContainer = document.createElement('div');
+            calendarContainer.className = 'habit-calendar-grid';
+
+            card.appendChild(header);
+            card.appendChild(calendarContainer);
+
+            this.populateCalendarGrid(habit, calendarContainer);
+            this.habitsGridContainer.appendChild(card);
+        });
+    }
+
+    render() {
+        this.viewOptions.querySelectorAll('.view-button').forEach(button => {
+            button.classList.toggle('active', button.dataset.view === this.currentView);
+        });
+
+        if (this.currentView === 'grid') {
+            this.habitsContainer.classList.add('hidden');
+            this.habitsGridContainer.classList.remove('hidden');
+            this.renderGridView();
+        } else {
+            this.habitsGridContainer.classList.add('hidden');
+            this.habitsContainer.classList.remove('hidden');
+            this.renderListView();
+        }
     }
 }

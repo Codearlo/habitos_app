@@ -97,7 +97,7 @@ h1 {
     color: var(--text-color);
 }
 
-/* Contenedor de hábitos */
+/* Contenedor de hábitos - Lista */
 .habits-container {
     display: flex;
     flex-direction: column;
@@ -279,6 +279,45 @@ h1 {
 .day-track.today .day-name {
     color: var(--primary-color);
     font-weight: 500;
+}
+
+/* Contenedor de hábitos - Cuadrícula */
+.habits-grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+}
+
+.habit-grid-card {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    cursor: pointer;
+}
+
+.habit-grid-card .habit-detail-header {
+    padding: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-md);
+}
+
+.habit-grid-card .habit-detail-name {
+    font-size: 1.1rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.habit-grid-card .habit-calendar-grid {
+    padding: 0;
+    gap: 2px;
+    grid-template-columns: repeat(auto-fit, minmax(8px, 1fr));
+    grid-auto-rows: minmax(8px, 1fr);
+    aspect-ratio: 4 / 1;
 }
 
 /* Botón de añadir hábito */
@@ -998,3 +1037,4 @@ h1 {
         opacity: 1;
     }
 }
+
