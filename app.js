@@ -140,7 +140,6 @@ class HabitTracker {
         } catch (error) {
             console.error('Error al guardar hábitos:', error);
         }
-        // No llamar render aquí automáticamente
     }
 
     setupEventListeners() {
@@ -201,7 +200,6 @@ class HabitTracker {
             }
         });
 
-        // Eventos para el modal de detalle
         const detailModal = document.getElementById('habitDetailModal');
         detailModal.addEventListener('click', (e) => {
             const action = e.target.closest('[data-action]')?.dataset.action;
@@ -222,7 +220,6 @@ class HabitTracker {
                     this.showDeleteModal(habitId);
                     break;
                 case 'calendar':
-                    // Implementar calendario
                     break;
                 case 'complete-today':
                     const todayKey = this.dateHelpers.getTodayKey();
@@ -236,13 +233,12 @@ class HabitTracker {
                         const dateKey = button.dataset.date;
                         this.updateDayProgress(habitId, dateKey);
                         this.updateDetailView(habitId);
-                        this.render(); // Actualizar también la vista principal
+                        this.render(); 
                     }
                     break;
             }
         });
 
-        // Agregar evento específico para hacer clic en cualquier día del calendario
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('calendar-day') && !e.target.classList.contains('future') && !e.target.classList.contains('empty')) {
                 const modal = document.getElementById('habitDetailModal');
@@ -257,7 +253,6 @@ class HabitTracker {
                 }
             }
             
-            // Cerrar selectores cuando se hace clic fuera
             if (!e.target.closest('.emoji-selector') && !e.target.closest('.icon-display')) {
                 const emojiSelector = document.getElementById('emojiSelector');
                 if (emojiSelector) emojiSelector.classList.remove('show');
@@ -278,7 +273,6 @@ class HabitTracker {
         
         modal.classList.add('active');
         
-        // Crear selectores inmediatamente después de mostrar el modal
         setTimeout(() => {
             this.clearCustomSelectors();
             this.createEmojiSelector();
@@ -289,7 +283,6 @@ class HabitTracker {
                 form.elements.habitGoal.value = this.habitToEdit.goal;
                 form.elements.habitDesiredStreak.value = this.habitToEdit.desiredStreak || 7;
                 
-                // Actualizar displays después de crear los selectores
                 setTimeout(() => {
                     const iconDisplay = document.querySelector('.icon-display');
                     const colorDisplay = document.querySelector('.color-display');
@@ -307,7 +300,6 @@ class HabitTracker {
             } else {
                 form.reset();
                 
-                // Actualizar displays con valores por defecto
                 setTimeout(() => {
                     const iconDisplay = document.querySelector('.icon-display');
                     const colorDisplay = document.querySelector('.color-display');
@@ -327,10 +319,8 @@ class HabitTracker {
     }
 
     clearCustomSelectors() {
-        // Remover selectores existentes
         document.querySelectorAll('.icon-display, .color-display, .emoji-selector, .color-selector').forEach(el => el.remove());
         
-        // Mostrar inputs originales
         const iconInput = document.getElementById('habitIcon');
         const colorInput = document.getElementById('habitColor');
         if (iconInput) iconInput.style.display = 'block';
@@ -341,10 +331,8 @@ class HabitTracker {
         const emojiInput = document.getElementById('habitIcon');
         const inputGroup = emojiInput.parentNode;
         
-        // Solo usar los primeros 24 emojis para llenar exactamente 6x4
         const emojis = ['⭐', '🏃', '💪', '📚', '🧘', '💧', '🥗', '😴', '🎯', '🎨', '🎵', '💻', '🏠', '🌱', '⚽', '🏊', '🚴', '🎮', '📱', '☕', '🧠', '❤️', '🔥', '✨'];
         
-        // Crear display
         const display = document.createElement('div');
         display.className = 'icon-display';
         display.textContent = emojiInput.value || '⭐';
@@ -354,7 +342,6 @@ class HabitTracker {
             this.toggleEmojiSelector();
         };
         
-        // Crear selector
         const selector = document.createElement('div');
         selector.className = 'emoji-selector';
         selector.id = 'emojiSelector';
@@ -372,7 +359,6 @@ class HabitTracker {
             selector.appendChild(option);
         });
         
-        // Ocultar input original y agregar nuevos elementos
         emojiInput.style.display = 'none';
         inputGroup.appendChild(display);
         inputGroup.appendChild(selector);
@@ -529,21 +515,22 @@ class HabitTracker {
     updateDetailView(habitId) {
         const habit = this.habits.find(h => h.id === habitId);
         if (!habit) return;
-
+    
         const modal = document.getElementById('habitDetailModal');
         const calendarGrid = modal.querySelector('.habit-calendar-grid');
         calendarGrid.innerHTML = '';
-
+    
         calendarGrid.style.gridTemplateColumns = `repeat(30, 1fr)`;
         calendarGrid.style.gridTemplateRows = `repeat(7, 1fr)`;
-
+    
         const today = new Date();
+        const todayKey = this.dateHelpers.getTodayKey();
         
         const startOfWeek = new Date(today);
         const dayOfWeek = (startOfWeek.getDay() + 6) % 7;
         startOfWeek.setDate(today.getDate() - dayOfWeek);
         startOfWeek.setDate(startOfWeek.getDate() - (29 * 7));
-
+    
         for (let week = 0; week < 30; week++) {
             for (let day = 0; day < 7; day++) {
                 const date = new Date(startOfWeek);
@@ -552,48 +539,35 @@ class HabitTracker {
                 const dateKey = this.dateHelpers.getDateKey(date);
                 const progress = habit.history[dateKey] || 0;
                 const isCompleted = progress >= habit.goal;
+                const isPartial = progress > 0 && !isCompleted;
                 const isFuture = date > today;
-                const isToday = dateKey === this.dateHelpers.getTodayKey();
-
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
+                const isToday = dateKey === todayKey;
+    
+                const dayElement = document.createElement('button');
                 dayElement.dataset.date = dateKey;
-                
+                dayElement.dataset.action = 'toggle-day';
+    
+                let statusClass = 'calendar-day';
+                if (isCompleted) statusClass += ' completed';
+                else if (isPartial) statusClass += ' partial';
+                if (isFuture) statusClass += ' future';
+                if (isToday) statusClass += ' today';
+                dayElement.className = statusClass;
+    
+                const progressOpacity = isPartial ? Math.min(progress / habit.goal, 1) : 0;
+    
+                dayElement.style.setProperty('--habit-color', habit.color);
+                dayElement.style.setProperty('--progress-opacity', progressOpacity);
+    
                 const gridRow = day + 1;
                 const gridColumn = week + 1;
                 dayElement.style.gridRow = gridRow;
                 dayElement.style.gridColumn = gridColumn;
-                
-                if (isCompleted) {
-                    dayElement.classList.add('completed');
-                    dayElement.style.backgroundColor = habit.color;
-                } else if (progress > 0) {
-                    const opacity = Math.min(progress / habit.goal, 1);
-                    dayElement.style.backgroundColor = habit.color;
-                    dayElement.style.opacity = opacity;
-                }
-                
-                if (isFuture) {
-                    dayElement.classList.add('future');
-                }
-                
-                if (isToday) {
-                    dayElement.classList.add('today');
-                    if (isCompleted) {
-                        dayElement.style.backgroundColor = habit.color;
-                        dayElement.style.border = `1px solid ${habit.color}`;
-                        dayElement.style.boxSizing = 'border-box';
-                    } else {
-                        dayElement.style.border = `1px solid ${habit.color}`;
-                        dayElement.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                        dayElement.style.boxSizing = 'border-box';
-                    }
-                }
-
+    
                 calendarGrid.appendChild(dayElement);
             }
         }
-
+    
         this.updateDetailControls(habit);
     }
 
@@ -659,7 +633,6 @@ class HabitTracker {
 
         habit.history[dateKey] = currentProgress;
         this.saveHabits();
-        this.render();
     }
 
     calculateStreak(habit) {
@@ -675,7 +648,13 @@ class HabitTracker {
                 streak++;
                 currentDate.setDate(currentDate.getDate() - 1);
             } else {
-                break;
+                const todayKey = this.dateHelpers.getTodayKey();
+                if (dateKey !== todayKey && progress < habit.goal) {
+                    break;
+                }
+                if (dateKey === todayKey) {
+                    break;
+                }
             }
         }
         
@@ -792,7 +771,6 @@ class HabitTracker {
         const weekTrack = document.createElement('div');
         weekTrack.className = 'habit-week-track';
         
-        const today = new Date();
         const todayKey = this.dateHelpers.getTodayKey();
         
         const days = this.getWeekDaysCenteredAroundToday();
@@ -803,12 +781,13 @@ class HabitTracker {
             
             const progress = habit.history[day.dateKey] || 0;
             const isCompleted = progress >= habit.goal;
+            const isPartial = progress > 0 && !isCompleted;
             const isFuture = day.dateKey > todayKey;
             const isToday = day.dateKey === todayKey;
             
             let statusClass = 'day-status';
             if (isCompleted) statusClass += ' completed';
-            else if (progress > 0) statusClass += ' partial';
+            else if (isPartial) statusClass += ' partial';
             if (isFuture) statusClass += ' future';
             if (isToday) statusClass += ' today';
             
@@ -820,7 +799,7 @@ class HabitTracker {
                 <button class="${statusClass}" 
                         data-date="${day.dateKey}" 
                         data-action="toggle-day"
-                        style="--progress-angle: ${progressAngle}deg; --habit-color: ${habit.color}; --progress-opacity: ${progress > 0 && !isCompleted ? 1 : 0};">
+                        style="--progress-angle: ${progressAngle}deg; --habit-color: ${habit.color}; --progress-opacity: ${isPartial ? 1 : 0};">
                     <span></span>
                 </button>
             `;
