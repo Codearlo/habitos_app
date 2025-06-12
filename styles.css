@@ -684,24 +684,29 @@ h1 {
 }
 
 /* Layout para formulario */
-.form-grid {
+.form-row-2-col, .form-row-3-col {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
 }
-
-.form-grid > .input-group {
+.form-row-2-col {
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: var(--spacing-md);
+}
+.form-row-3-col {
+    grid-template-columns: repeat(3, 1fr);
+}
+.form-row-2-col > .input-group,
+.form-row-3-col > .input-group {
     margin-bottom: 0;
 }
-
 
 /* Selectores personalizados */
 .icon-display, .color-display {
     width: 100%;
-    padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
+    padding: 0;
+    border: none;
     border-radius: var(--border-radius-sm);
-    background-color: #121212;
+    background-color: transparent;
     color: var(--text-color);
     cursor: pointer;
     display: flex;
@@ -711,14 +716,6 @@ h1 {
     min-height: 48px;
     transition: var(--transition-fast);
     position: relative;
-}
-
-.icon-display::after, .color-display::after {
-    content: '▼';
-    position: absolute;
-    right: 12px;
-    font-size: 12px;
-    color: var(--text-secondary);
 }
 
 .icon-display:hover, .color-display:hover {
@@ -891,8 +888,15 @@ h1 {
         bottom: 4.5rem;
     }
 
-    .form-grid {
+    .form-row-2-col, .form-row-3-col {
         grid-template-columns: 1fr;
+    }
+    .form-row-2-col {
+        margin-bottom: 0;
+    }
+    .form-row-2-col > .input-group,
+    .form-row-3-col > .input-group {
+        margin-bottom: var(--spacing-lg);
     }
 
     .modal-content {
