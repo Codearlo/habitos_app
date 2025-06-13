@@ -895,6 +895,117 @@ h1 {
     color: var(--text-color);
 }
 
+/* Vista de Estadísticas */
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.stats-section {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+}
+
+.stats-section h2 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.stat-card {
+    background-color: #2a2a2a;
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+    text-align: center;
+}
+
+.stat-card-title {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.stat-card-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.stat-card-value .material-icons {
+    font-size: inherit;
+    vertical-align: middle;
+    color: #ff6f00;
+}
+
+.habit-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.habit-stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #2a2a2a;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+}
+
+.habit-stat-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.habit-stat-item .habit-name {
+    margin: 0;
+}
+
+.habit-stat-item .habit-icon-container {
+    width: 32px;
+    height: 32px;
+}
+
+.habit-stat-item .habit-icon {
+    font-size: 1.25rem;
+}
+
+.habit-stat-details {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.habit-stat-detail {
+    text-align: center;
+    min-width: 60px;
+}
+
+.habit-stat-detail span {
+    display: block;
+}
+
+.habit-stat-detail .value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+
 /* Media queries */
 @media (max-width: 600px) {
     .app-container {
@@ -963,6 +1074,11 @@ h1 {
     .modal-content {
         max-width: 90vw;
         margin: var(--spacing-md);
+    }
+
+    .habit-stat-item {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 

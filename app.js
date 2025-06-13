@@ -62,7 +62,8 @@ class HabitTracker {
         this.dateHelpers = new DateHelpers();
         this.habitToEdit = null;
         this.habitToDelete = null;
-        this.currentView = 'list';
+        this.habitListView = 'list'; // 'list' or 'grid'
+        this.activeView = 'home'; // 'home', 'stats', 'settings'
         this.getDOMElements();
         this.setupEventListeners();
         this.loadHabits();
@@ -72,6 +73,7 @@ class HabitTracker {
     getDOMElements() {
         this.habitsContainer = document.getElementById('habitsContainer');
         this.habitsGridContainer = document.getElementById('habitsGridContainer');
+        this.statsContainer = document.getElementById('statsContainer');
         this.addHabitBtn = document.getElementById('addHabitBtn');
         this.habitModal = document.getElementById('habitModal');
         this.habitForm = document.getElementById('habitForm');
@@ -79,6 +81,8 @@ class HabitTracker {
         this.detailModal = document.getElementById('habitDetailModal');
         this.confirmDeleteBtn = document.getElementById('confirmDelete');
         this.viewOptions = document.querySelector('.view-options');
+        this.navItems = document.querySelectorAll('.nav-item');
+        this.header = document.querySelector('header');
     }
 
     hexToRgb(hex) {
@@ -117,6 +121,7 @@ class HabitTracker {
                     icon: habit.icon || '⭐',
                     color: habit.color || '#4CAF50',
                     history: habit.history || {},
+                    createdAt: habit.createdAt || new Date().toISOString()
                 };
             }).filter(Boolean);
 
@@ -214,8 +219,18 @@ class HabitTracker {
             const button = e.target.closest('.view-button');
             if (!button) return;
 
-            this.currentView = button.dataset.view;
+            this.habitListView = button.dataset.view;
             this.render();
+        });
+
+        this.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const view = item.dataset.view;
+                if(view === 'settings') return; // Not implemented
+                
+                this.activeView = view;
+                this.render();
+            });
         });
 
         const detailModal = document.getElementById('habitDetailModal');
@@ -562,7 +577,8 @@ class HabitTracker {
             const newHabit = {
                 ...habitData,
                 id: Date.now().toString(),
-                history: {}
+                history: {},
+                createdAt: new Date().toISOString()
             };
             this.habits.push(newHabit);
             habitId = newHabit.id;
@@ -604,11 +620,17 @@ class HabitTracker {
         this.saveHabits();
     }
 
-    calculateStreak(habit) {
-        const today = new Date();
+    calculateStreak(habit, endDateKey = null) {
+        const today = endDateKey ? new Date(endDateKey) : new Date();
         let streak = 0;
         let currentDate = new Date(today);
-        
+    
+        // If checking for today's streak and today is not complete, start from yesterday
+        const todayKey = this.dateHelpers.getDateKey(today);
+        if (endDateKey === null && (habit.history[todayKey] || 0) < habit.goal) {
+            currentDate.setDate(currentDate.getDate() - 1);
+        }
+    
         while (true) {
             const dateKey = this.dateHelpers.getDateKey(currentDate);
             const progress = habit.history[dateKey] || 0;
@@ -617,17 +639,47 @@ class HabitTracker {
                 streak++;
                 currentDate.setDate(currentDate.getDate() - 1);
             } else {
-                const todayKey = this.dateHelpers.getTodayKey();
-                if (dateKey !== todayKey && progress < habit.goal) {
-                    break;
-                }
-                if (dateKey === todayKey) {
-                    break;
-                }
+                break;
             }
         }
         
         return streak;
+    }
+
+    calculateLongestStreak(habit) {
+        if (!habit.history || Object.keys(habit.history).length === 0) return 0;
+    
+        const historyKeys = Object.keys(habit.history).sort();
+        let longestStreak = 0;
+        let currentStreak = 0;
+    
+        for (let i = 0; i < historyKeys.length; i++) {
+            const dateKey = historyKeys[i];
+            const progress = habit.history[dateKey] || 0;
+    
+            if (progress >= habit.goal) {
+                // Check if the previous day was also completed
+                if (i > 0) {
+                    const prevDate = new Date(dateKey);
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    const prevDateKey = this.dateHelpers.getDateKey(prevDate);
+                    if (historyKeys[i-1] === prevDateKey) {
+                        currentStreak++;
+                    } else {
+                        currentStreak = 1;
+                    }
+                } else {
+                    currentStreak = 1;
+                }
+            } else {
+                currentStreak = 0;
+            }
+    
+            if (currentStreak > longestStreak) {
+                longestStreak = currentStreak;
+            }
+        }
+        return longestStreak;
     }
 
     updateDetailControls(habit) {
@@ -894,12 +946,128 @@ class HabitTracker {
         });
     }
 
-    render() {
+    calculateGlobalStats() {
+        let totalCompletions = 0;
+        let totalTrackedDays = 0;
+        let longestStreakOverall = 0;
+    
+        this.habits.forEach(habit => {
+            const habitCompletions = Object.values(habit.history).filter(p => p >= habit.goal).length;
+            totalCompletions += habitCompletions;
+    
+            const habitStartDate = new Date(habit.createdAt);
+            const today = new Date();
+            const daysDiff = Math.ceil((today - habitStartDate) / (1000 * 60 * 60 * 24));
+            totalTrackedDays += daysDiff > 0 ? daysDiff : 1;
+    
+            const longestStreak = this.calculateLongestStreak(habit);
+            if (longestStreak > longestStreakOverall) {
+                longestStreakOverall = longestStreak;
+            }
+        });
+    
+        const successRate = totalTrackedDays > 0 ? (totalCompletions / totalTrackedDays * 100).toFixed(1) : 0;
+    
+        return {
+            activeHabits: this.habits.length,
+            totalCompletions,
+            successRate,
+            longestStreakOverall
+        };
+    }
+
+    renderStatsView() {
+        this.statsContainer.innerHTML = '';
+        if (this.habits.length === 0) {
+            this.statsContainer.innerHTML = '<p class="no-habits-message">No hay datos de estadísticas disponibles. ¡Empieza a seguir tus hábitos!</p>';
+            return;
+        }
+    
+        const globalStats = this.calculateGlobalStats();
+    
+        const generalSection = document.createElement('div');
+        generalSection.className = 'stats-section';
+        generalSection.innerHTML = `
+            <h2>Visión General</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <p class="stat-card-title">Hábitos Activos</p>
+                    <p class="stat-card-value">${globalStats.activeHabits}</p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-card-title">Tasa de Éxito</p>
+                    <p class="stat-card-value">${globalStats.successRate}%</p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-card-title">Racha Máxima</p>
+                    <p class="stat-card-value"><span class="material-icons">local_fire_department</span> ${globalStats.longestStreakOverall}</p>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-card-title">Días Completados</p>
+                    <p class="stat-card-value">${globalStats.totalCompletions}</p>
+                </div>
+            </div>
+        `;
+    
+        const habitsSection = document.createElement('div');
+        habitsSection.className = 'stats-section';
+        habitsSection.innerHTML = '<h2>Estadísticas por Hábito</h2>';
+        const habitList = document.createElement('div');
+        habitList.className = 'habit-stats-list';
+    
+        this.habits.forEach(habit => {
+            const currentStreak = this.calculateStreak(habit);
+            const longestStreak = this.calculateLongestStreak(habit);
+            const totalCompletions = Object.values(habit.history).filter(p => p >= habit.goal).length;
+            
+            const habitStartDate = new Date(habit.createdAt);
+            const today = new Date();
+            const daysDiff = Math.ceil((today - habitStartDate) / (1000 * 60 * 60 * 24));
+            const trackedDays = daysDiff > 0 ? daysDiff : 1;
+            const successRate = (totalCompletions / trackedDays * 100).toFixed(1);
+
+            const item = document.createElement('div');
+            item.className = 'habit-stat-item';
+            item.innerHTML = `
+                <div class="habit-stat-identity">
+                    <div class="habit-icon-container" style="background-color: ${habit.color}20">
+                        <span class="habit-icon">${habit.icon}</span>
+                    </div>
+                    <h3 class="habit-name">${habit.name}</h3>
+                </div>
+                <div class="habit-stat-details">
+                    <div class="habit-stat-detail">
+                        <span>Éxito</span>
+                        <span class="value">${successRate}%</span>
+                    </div>
+                    <div class="habit-stat-detail">
+                        <span>Racha Actual</span>
+                        <span class="value">${currentStreak}</span>
+                    </div>
+                    <div class="habit-stat-detail">
+                        <span>Racha Máxima</span>
+                        <span class="value">${longestStreak}</span>
+                    </div>
+                    <div class="habit-stat-detail">
+                        <span>Completados</span>
+                        <span class="value">${totalCompletions}</span>
+                    </div>
+                </div>
+            `;
+            habitList.appendChild(item);
+        });
+    
+        habitsSection.appendChild(habitList);
+        this.statsContainer.appendChild(generalSection);
+        this.statsContainer.appendChild(habitsSection);
+    }
+
+    renderHabitsView() {
         this.viewOptions.querySelectorAll('.view-button').forEach(button => {
-            button.classList.toggle('active', button.dataset.view === this.currentView);
+            button.classList.toggle('active', button.dataset.view === this.habitListView);
         });
 
-        if (this.currentView === 'grid') {
+        if (this.habitListView === 'grid') {
             this.habitsContainer.classList.add('hidden');
             this.habitsGridContainer.classList.remove('hidden');
             this.renderGridView();
@@ -907,6 +1075,25 @@ class HabitTracker {
             this.habitsGridContainer.classList.add('hidden');
             this.habitsContainer.classList.remove('hidden');
             this.renderListView();
+        }
+    }
+
+    render() {
+        this.navItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.view === this.activeView);
+        });
+
+        const showHabitViews = this.activeView === 'home';
+        this.habitsContainer.classList.toggle('hidden', !showHabitViews);
+        this.habitsGridContainer.classList.toggle('hidden', !showHabitViews);
+        this.statsContainer.classList.toggle('hidden', this.activeView !== 'stats');
+        this.header.classList.toggle('hidden', this.activeView !== 'home');
+        this.addHabitBtn.classList.toggle('hidden', this.activeView !== 'home');
+
+        if (this.activeView === 'home') {
+            this.renderHabitsView();
+        } else if (this.activeView === 'stats') {
+            this.renderStatsView();
         }
     }
 }
